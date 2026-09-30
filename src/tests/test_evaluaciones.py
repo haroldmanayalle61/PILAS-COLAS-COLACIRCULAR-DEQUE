@@ -1,6 +1,8 @@
 import unittest
 
 from evaluaciones import evaluar_postfija, evaluar_prefija
+from evaluaciones import evaluar_postfija, evaluar_prefija
+from conversiones import infija_a_postfija, infija_a_prefija
 
 
 class TestEvaluaciones(unittest.TestCase):
@@ -123,6 +125,36 @@ class TestEvaluaciones(unittest.TestCase):
     def test_operandos_sobrantes_prefija(self) -> None:
         with self.assertRaises(ValueError):
             evaluar_prefija("+ 8 2 3")
+
+
+    def test_integracion_postfija(self) -> None:
+        expresion_infija = "8 / 2 - 3"
+
+        postfija = infija_a_postfija(expresion_infija)
+        resultado = evaluar_postfija(postfija)
+
+        self.assertEqual(postfija, "8 2 / 3 -")
+        self.assertEqual(resultado, 1.0)
+
+
+    def test_integracion_prefija(self) -> None:
+        expresion_infija = "8 / 2 - 3"
+
+        prefija = infija_a_prefija(expresion_infija)
+        resultado = evaluar_prefija(prefija)
+
+        self.assertEqual(prefija, "- / 8 2 3")
+        self.assertEqual(resultado, 1.0)
+
+
+    def test_integracion_potencia(self) -> None:
+        expresion_infija = "2 ^ 3 ^ 2"
+
+        postfija = infija_a_postfija(expresion_infija)
+        resultado = evaluar_postfija(postfija)
+
+        self.assertEqual(postfija, "2 3 2 ^ ^")
+        self.assertEqual(resultado, 512)
 
 
 if __name__ == "__main__":

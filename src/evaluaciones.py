@@ -1,125 +1,185 @@
 from pila import Pila
-
-#Operadores permitidos
-OPERADORES = ['+', '-', '*', '/', '^']
+import tokens
 
 
 def es_numero(token: str) -> bool:
-    """Verifica si un token representa un numero entero o decimal."""
+    """
+    Verifica si un token representa un número válido.
+    """
 
     try:
         float(token)
         return True
+
     except ValueError:
         return False
 
 
-def es_operador(token: str) -> bool:
-    """Verifica si el token es un operador valido."""    
-    return token in OPERADORES
-
-
-def operar(a: int|float, b: int|float, operador: str) -> int|float:
-    """Realiza la operacion matematica entre dos numeros segun el operador."""
-    match operador:
-        case '+':
-            return a + b
-        case '-':
-            return a - b
-        case '*':
-            return a * b
-        case '/':
-            if b == 0:
-                raise ZeroDivisionError("Division por cero")
-            return a / b
-        case '^':
-            return a ** b
-        case _:
-            raise ValueError(f"Operador no valido: {operador}")
-
-def convertir_numero(token: str) -> int|float:
-    # sourcery skip: assign-if-exp, reintroduce-else
-    """Convierte un token a numero entero o decimal."""
+def convertir_numero(token: str) -> int | float:
+    """
+    Convierte un token a entero o decimal.
+    """
 
     numero = float(token)
 
-    #Si es entero devuelve int
-    if numero.is_integer():
-        return int(numero)
-
-    return numero
+    return int(numero) if numero.is_integer() else numero
 
 
-def evaluar_postfija(expresion: str) -> int|float:
-    """Evalua una expresion en notacion postfija y devuelve el resultado."""
+def operar(
+    a: int | float,
+    b: int | float,
+    operador: str
+) -> int | float:
+    """
+    Realiza la operación indicada entre dos operandos.
 
-    pila = Pila()
+    El orden siempre es:
+    a operador b
+    """
 
-    tokens = expresion.split()
+    match operador:
 
-    for token in tokens:
+        case "+":
+            return a + b
 
-        #Si es numero
+        case "-":
+            return a - b
+
+        case "*":
+            return a * b
+
+        case "/":
+            if b == 0:
+                raise ZeroDivisionError(
+                    "No se puede dividir entre cero"
+                )
+
+            return a / b
+
+        case "^":
+            return a ** b
+
+        case _:
+            raise ValueError(
+                f"Operador inválido: {operador}"
+            )
+
+
+def evaluar_postfija(expresion: str) -> int | float:
+    """
+    Evalúa una expresión en notación postfija.
+
+    Ejemplo:
+    8 2 / 3 -
+
+    Resultado:
+    1
+    """
+
+    pila = Pila[int | float]()
+    lista_tokens = expresion.split()
+
+    if not lista_tokens:
+        raise ValueError(
+            "La expresión está vacía"
+        )
+
+    for token in lista_tokens:
+
         if es_numero(token):
-            pila.apilar(convertir_numero(token))
 
-        #Si es operador
-        elif es_operador(token):
+            pila.apilar(
+                convertir_numero(token)
+            )
 
-            try:
-                b = pila.desapilar()
-                a = pila.desapilar()
+        elif tokens.es_operador(token):
 
-            except IndexError:
+            if pila.tamanio() < 2:
+                raise ValueError(
+                    "Operandos insuficientes"
+                )
 
-                raise ValueError("Expresion invalida: no hay suficientes operandos para el operador")
+            b = pila.desapilar()
+            a = pila.desapilar()
 
-            resultado = operar(a, b, token)
+            resultado = operar(
+                a,
+                b,
+                token
+            )
+
             pila.apilar(resultado)
 
         else:
-            raise ValueError(f"Token no valido: {token}")
 
-    #Debe quedar solo un resultado
+            raise ValueError(
+                f"Token inválido: {token}"
+            )
+
     if pila.tamanio() != 1:
-        raise ValueError("Expresion invalida: quedan operandos sin operar")    
 
-    return pila.desapilar()  
+        raise ValueError(
+            "La expresión tiene operandos sobrantes"
+        )
+
+    return pila.desapilar()
 
 
-def evaluar_prefija(expresion: str) -> int|float:
-    """Evalua una expresion en notacion prefija y devuelve el resultado."""
+def evaluar_prefija(expresion: str) -> int | float:
+    """
+    Evalúa una expresión en notación prefija.
 
-    pila = Pila()
+    Ejemplo:
+    - / 8 2 3
 
-    tokens = expresion.split()
+    Resultado:
+    1
+    """
 
-    #Prefija se lee de derecha a izquierda
+    pila = Pila[int | float]()
+    lista_tokens = expresion.split()
 
-    for token in reversed(tokens):
+    if not lista_tokens:
+        raise ValueError(
+            "La expresión está vacía"
+        )
 
-        #Si es numero
+    for token in reversed(lista_tokens):
+
         if es_numero(token):
-            pila.apilar(convertir_numero(token))
 
-        #Si es operador
-        elif es_operador(token):
+            pila.apilar(
+                convertir_numero(token)
+            )
 
-            try:
-                a = pila.desapilar()
-                b = pila.desapilar()
+        elif tokens.es_operador(token):
 
-            except IndexError:
+            if pila.tamanio() < 2:
+                raise ValueError(
+                    "Operandos insuficientes"
+                )
 
-                raise ValueError("Expresion invalida: no hay suficientes operandos para el operador")
+            a = pila.desapilar()
+            b = pila.desapilar()
 
-            resultado = operar(a, b, token)
+            resultado = operar(
+                a,
+                b,
+                token
+            )
+
             pila.apilar(resultado)
 
         else:
-            raise ValueError(f"Token no valido: {token}")
+
+            raise ValueError(
+                f"Token inválido: {token}"
+            )
 
     if pila.tamanio() != 1:
-        raise ValueError("Expresion invalida: quedan operandos sin operar")
+
+        raise ValueError(
+            "La expresión tiene operandos sobrantes"
+        )
 
     return pila.desapilar()
