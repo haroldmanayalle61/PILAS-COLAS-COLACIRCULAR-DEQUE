@@ -29,7 +29,7 @@ def submenu_pila () -> None:
             print('5. Consultar el tamanio')
             print('6. Comprobar si esta vacia')
             print('0. Cerrar submenu')
-            opcion = leer_entero('Ingrese una opcion')
+            opcion = leer_entero('Ingrese una opcion :')
 
             match opcion:
                 case 1:
