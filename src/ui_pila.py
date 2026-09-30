@@ -11,7 +11,7 @@ def leer_entero(mensaje : str)->int:
 
 def mostrar_estado() -> None:
     pila_acciones.mostrar()
-    print(f"Tamanioo: {pila_acciones.tamanio()}")
+    print(f"Tamanio: {pila_acciones.tamanio()}")
 
     if pila_acciones.esta_vacia():
         print("Cima: ninguna")
@@ -29,7 +29,7 @@ def submenu_pila () -> None:
             print('5. Consultar el tamanio')
             print('6. Comprobar si esta vacia')
             print('0. Cerrar submenu')
-            opcion = leer_entero('Ingrese una opcion')
+            opcion = leer_entero('Ingrese una opcion :')
 
             match opcion:
                 case 1:
@@ -58,7 +58,7 @@ def submenu_pila () -> None:
                     print('Menu cerrado exitosamente')
                     break
                 case _ :
-                    print('Opcion fuera de ramgp')
+                    print('Opcion fuera de rango')
 
         except Exception as e:
             print(f"Error ({type(e).__name__}): {e}")
