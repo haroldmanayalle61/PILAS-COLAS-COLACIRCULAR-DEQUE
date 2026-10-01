@@ -2,8 +2,8 @@ import ui_pila
 import ui_expresiones
 import ui_cola
 import ui_deque
-# import ui_circular  # Pendiente de entrega por Harold
-# import pruebas      # Pendiente de implementación (tu tarea)
+import ui_circular
+import pruebas
 
 def mostrar_menu_principal() -> None:
     print("\n" + "=" * 45)
