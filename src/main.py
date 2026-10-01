@@ -14,16 +14,15 @@ def mostrar_menu_principal() -> None:
     print("3. Demostrar Cola")
     print("4. Demostrar Cola Circular")
     print("5. Demostrar Deque")
-    print("6. Ejecutar pruebas [PENDIENTE]")
+    print("6. Ejecutar pruebas")
     print("7. Salir")
     print("=" * 45)
 
 def main() -> None:
     while True:
-        mostrar_menu_principal()
-        opcion = input("\nSeleccione una opción general: ").strip()
-
         try:
+            mostrar_menu_principal()
+            opcion = input("\nSeleccione una opción general: ").strip()
             if opcion == "1":
                 ui_pila.ejecutar()
                 
@@ -34,13 +33,12 @@ def main() -> None:
                 ui_cola.ejecutar()
                 
             elif opcion == "4":
-                print("\n[AVISO] El módulo de Cola Circular está en desarrollo por Harold.")
+                ui_circular.ejecutar()
                 
             elif opcion == "5":
                 ui_deque.ejecutar()
                 
             elif opcion == "6":
-                import pruebas
                 pruebas.ejecutar_pruebas()
                 
             elif opcion == "7":
@@ -50,6 +48,9 @@ def main() -> None:
             else:
                 print("\nError: Opción inválida. Ingrese un número del 1 al 7.")
                 
+        except (EOFError, KeyboardInterrupt):
+            print("\nCerrando el sistema integrador.")
+            break
         except Exception as e:
             # Capturamos cualquier error no previsto para que el menú no colapse
             print(f"\n[ERROR CRÍTICO] El submenú falló con el error: {e}")

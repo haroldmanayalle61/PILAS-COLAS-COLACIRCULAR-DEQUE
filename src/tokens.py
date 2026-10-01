@@ -1,8 +1,8 @@
-from typing import List
+import re
+from typing import Iterable, Iterator
 
 OPERADORES = {'+', '-', '*', '/', '^'}
 PARENTESIS = {'(', ')'}
-SEPARADORES = {' ', '\t'}
 
 
 def es_operador(token: str) -> bool:
@@ -43,6 +43,8 @@ def es_asociativo_derecha(operador: str) -> bool:
 
 def es_operando_valido(token: str) -> bool:
     #Valida que el token sea un identificador o un número bien formado.
+    if not token:
+        return False
     cuerpo = token[1:] if token[0] == '-' else token
     if cuerpo == "":
         return False
@@ -52,50 +54,64 @@ def es_operando_valido(token: str) -> bool:
             return True
         except ValueError:
             return False
+    if token.startswith('-'):
+        return False  # El signo se admite en números, no en identificadores.
     for caracter in cuerpo:
         if not es_letra_o_digito(caracter):
             return False
     return True
 
 
-def dividir_tokens(expresion: str) -> List[str]:
-    #Descompone la cadena en una lista de tokens.
-    tokens: List[str] = []
+def dividir_tokens(expresion: str) -> Iterator[str]:
+    # Emite tokens sin almacenarlos en una lista de Python.
     actual = ""
+    anterior = ""
+    emitio_token = False
 
     for caracter in expresion:
         # El espacio separa tokens; no se elimina, para que "A B" no se una
-        if caracter in SEPARADORES:
+        if caracter.isspace():
             if actual:
-                tokens.append(actual)
+                yield actual
+                anterior = actual
+                emitio_token = True
                 actual = ""
             continue
 
         # Un '-' es signo de número negativo si no hay operando antes
         es_negativo = (caracter == '-') and (not actual) and (
-            not tokens or tokens[-1] in OPERADORES or tokens[-1] == '('
+            not anterior or anterior in OPERADORES or anterior == '('
         )
 
         if es_letra_o_digito(caracter) or caracter == '.' or es_negativo:
             actual += caracter
         elif es_operador(caracter) or es_parentesis(caracter):
             if actual:
-                tokens.append(actual)
+                yield actual
+                anterior = actual
+                emitio_token = True
                 actual = ""
-            tokens.append(caracter)
+            yield caracter
+            anterior = caracter
+            emitio_token = True
         else:
             raise ValueError(f"Error de sintaxis: Carácter no reconocido '{caracter}'")
 
     if actual:
-        tokens.append(actual)
+        yield actual
+        emitio_token = True
 
-    if not tokens:
+    if not emitio_token:
         raise ValueError("Error de sintaxis: La expresión está vacía.")
 
-    return tokens
+
+def iterar_tokens_separados(expresion: str) -> Iterator[str]:
+    """Lee operandos y operadores separados por espacios sin usar split()."""
+    for coincidencia in re.finditer(r'\S+', expresion):
+        yield coincidencia.group()
 
 
-def validar_sintaxis(tokens: List[str]) -> None:
+def validar_sintaxis(tokens: Iterable[str]) -> None:
     #Lanza ValueError si la secuencia de tokens no es una expresión válida.
     espera_operando = True
     nivel = 0  # paréntesis abiertos pendientes de cerrar

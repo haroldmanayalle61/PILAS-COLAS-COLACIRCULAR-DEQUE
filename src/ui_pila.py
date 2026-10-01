@@ -21,7 +21,7 @@ def mostrar_estado() -> None:
 def submenu_pila () -> None:
     while True:
         try :
-            print(f'{'='*10}SUBMENU - OPERACIONES CON PILA{'='*10}')
+            print("=" * 10 + " SUBMENU - OPERACIONES CON PILA " + "=" * 10)
             print('1. Apilar una accion')
             print('2. Deshacer la última accion')
             print('3. Consultar la cima')
@@ -60,7 +60,7 @@ def submenu_pila () -> None:
                 case _ :
                     print('Opcion fuera de rango')
 
-        except Exception as e:
+        except (ValueError, IndexError, OverflowError) as e:
             print(f"Error ({type(e).__name__}): {e}")
 
 def ejecutar() -> None:

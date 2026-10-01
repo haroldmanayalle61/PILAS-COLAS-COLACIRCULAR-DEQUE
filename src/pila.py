@@ -1,4 +1,4 @@
-from typing import Generic,TypeVar, Optional
+from typing import Generic,TypeVar, Optional, Iterator
 T = TypeVar("T")
 
 
@@ -39,7 +39,8 @@ class Pila(Generic[T]):
 
     def mostrar(self) -> None: #Recorrido lineal, complejidad O(n)
         if self.__cima is None :
-            raise IndexError ("Pila vacia")
+            print("Pila vacia")
+            return
         actual : Optional[NodoPila[T]] = self.__cima
         print("Cima")
 
@@ -48,3 +49,10 @@ class Pila(Generic[T]):
             actual = actual.siguiente
 
         print("Base")
+
+    def __iter__(self) -> Iterator[T]:
+        """Recorre de cima a base sin retirar elementos ni cambiar enlaces."""
+        actual = self.__cima
+        while actual is not None:
+            yield actual.dato
+            actual = actual.siguiente

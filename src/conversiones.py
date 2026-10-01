@@ -1,96 +1,84 @@
-from typing import List
-
 import tokens
 from pila import Pila
 
 
 def infija_a_postfija(expresion: str) -> str:
-    """Convierte una expresión en notación infija a notación postfija."""
-    lista_tokens = tokens.dividir_tokens(expresion)
-    tokens.validar_sintaxis(lista_tokens)
+    """Convierte infija a postfija usando exclusivamente pilas propias."""
+    tokens.validar_sintaxis(tokens.dividir_tokens(expresion))
+    operadores = Pila[str]()
+    salida = Pila[str]()
 
-    pila = Pila[str]()
-    salida: List[str] = []
-
-    for token in lista_tokens:
+    for token in tokens.dividir_tokens(expresion):
         if not tokens.es_operador(token) and not tokens.es_parentesis(token):
-            salida.append(token)
+            salida.apilar(token)
         elif token == '(':
-            pila.apilar(token)
+            operadores.apilar(token)
         elif token == ')':
-            while not pila.esta_vacia() and pila.cima() != '(':
-                salida.append(pila.desapilar())
-            if pila.esta_vacia():
-                raise ValueError("Error de sintaxis: Paréntesis desbalanceados")
-            pila.desapilar()  # descarta el '('
-        else:  # operador
-            prec_actual = tokens.obtener_jerarquia(token)
-            while not pila.esta_vacia() and pila.cima() != '(':
-                prec_cima = tokens.obtener_jerarquia(pila.cima())
-                if (prec_cima > prec_actual) or (
-                    prec_cima == prec_actual and not tokens.es_asociativo_derecha(token)
+            while not operadores.esta_vacia() and operadores.cima() != '(':
+                salida.apilar(operadores.desapilar())
+            operadores.desapilar()  # La validación previa garantiza la apertura.
+        else:
+            prioridad = tokens.obtener_jerarquia(token)
+            while not operadores.esta_vacia() and operadores.cima() != '(':
+                prioridad_cima = tokens.obtener_jerarquia(operadores.cima())
+                if prioridad_cima > prioridad or (
+                    prioridad_cima == prioridad
+                    and not tokens.es_asociativo_derecha(token)
                 ):
-                    salida.append(pila.desapilar())
+                    salida.apilar(operadores.desapilar())
                 else:
                     break
-            pila.apilar(token)
+            operadores.apilar(token)
 
-    while not pila.esta_vacia():
-        top = pila.desapilar()
-        if tokens.es_parentesis(top):
-            raise ValueError("Error de sintaxis: Paréntesis desbalanceados")
-        salida.append(top)
+    while not operadores.esta_vacia():
+        salida.apilar(operadores.desapilar())
 
-    return " ".join(salida)
+    # Dos pilas conservan el orden de emisión sin una lista auxiliar.
+    salida_ordenada = Pila[str]()
+    while not salida.esta_vacia():
+        salida_ordenada.apilar(salida.desapilar())
+    return ' '.join(salida_ordenada)
 
 
 def infija_a_prefija(expresion: str) -> str:
-    """Convierte una expresión en notación infija a notación prefija."""
-    lista_tokens = tokens.dividir_tokens(expresion)
-    tokens.validar_sintaxis(lista_tokens)
-
-    # Se invierte la expresión intercambiando '(' y ')'
-    tokens_invertidos: List[str] = []
-    for token in reversed(lista_tokens):
+    """Invierte el recorrido mediante Pila y respeta la asociatividad."""
+    tokens.validar_sintaxis(tokens.dividir_tokens(expresion))
+    entrada_invertida = Pila[str]()
+    for token in tokens.dividir_tokens(expresion):
         if token == '(':
-            tokens_invertidos.append(')')
+            entrada_invertida.apilar(')')
         elif token == ')':
-            tokens_invertidos.append('(')
+            entrada_invertida.apilar('(')
         else:
-            tokens_invertidos.append(token)
+            entrada_invertida.apilar(token)
 
-    pila = Pila[str]()
-    salida: List[str] = []
-
-    for token in tokens_invertidos:
+    operadores = Pila[str]()
+    salida = Pila[str]()
+    while not entrada_invertida.esta_vacia():
+        token = entrada_invertida.desapilar()
         if not tokens.es_operador(token) and not tokens.es_parentesis(token):
-            salida.append(token)
+            salida.apilar(token)
         elif token == '(':
-            pila.apilar(token)
+            operadores.apilar(token)
         elif token == ')':
-            while not pila.esta_vacia() and pila.cima() != '(':
-                salida.append(pila.desapilar())
-            if pila.esta_vacia():
-                raise ValueError("Error de sintaxis: Paréntesis desbalanceados")
-            pila.desapilar()  # descarta el '('
-        else:  # operador
-            prec_actual = tokens.obtener_jerarquia(token)
-            while not pila.esta_vacia() and pila.cima() != '(':
-                prec_cima = tokens.obtener_jerarquia(pila.cima())
-                # Al ir invertido, la asociatividad se comporta al revés
-                if (prec_cima > prec_actual) or (
-                    prec_cima == prec_actual and tokens.es_asociativo_derecha(token)
+            while not operadores.esta_vacia() and operadores.cima() != '(':
+                salida.apilar(operadores.desapilar())
+            operadores.desapilar()
+        else:
+            prioridad = tokens.obtener_jerarquia(token)
+            while not operadores.esta_vacia() and operadores.cima() != '(':
+                prioridad_cima = tokens.obtener_jerarquia(operadores.cima())
+                # Al recorrer al revés se invierte la regla de desempate.
+                if prioridad_cima > prioridad or (
+                    prioridad_cima == prioridad
+                    and tokens.es_asociativo_derecha(token)
                 ):
-                    salida.append(pila.desapilar())
+                    salida.apilar(operadores.desapilar())
                 else:
                     break
-            pila.apilar(token)
+            operadores.apilar(token)
 
-    while not pila.esta_vacia():
-        top = pila.desapilar()
-        if tokens.es_parentesis(top):
-            raise ValueError("Error de sintaxis: Paréntesis desbalanceados")
-        salida.append(top)
-
-    salida.reverse()
-    return " ".join(salida)
+    while not operadores.esta_vacia():
+        salida.apilar(operadores.desapilar())
+    # El recorrido de cima a base invierte la salida auxiliar.
+    return ' '.join(salida)

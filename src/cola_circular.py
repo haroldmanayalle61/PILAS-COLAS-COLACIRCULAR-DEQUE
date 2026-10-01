@@ -32,10 +32,14 @@ class ColaCircular(Generic[T]):
         self.__cantidad -= 1
         return valor
 
-    def frente(self) -> T:
+    def consultar_frente(self) -> T:
         if self.esta_vacia():
             raise IndexError("Cola circular vacia: No se puede consultar el frente")
         return cast(T, self.__datos[self.__frente]) #cast: dato esperado es del tipo T al verificador
+
+    def frente(self) -> T:
+        """Alias que conserva la compatibilidad con las llamadas anteriores."""
+        return self.consultar_frente()
 
     def esta_vacia(self) -> bool:
         return self.tamanio() == 0
@@ -46,7 +50,8 @@ class ColaCircular(Generic[T]):
     def mostrar(self) -> None:
         # Recorrido en orden FIFO, complejidad O(n).
         if self.esta_vacia():
-            raise IndexError("Cola circular vacia")
+            print("Cola circular vacia")
+            return
         print("Frente")
         for posicion in range(self.__cantidad):
             indice: int = (self.__frente + posicion) % self.__capacidad

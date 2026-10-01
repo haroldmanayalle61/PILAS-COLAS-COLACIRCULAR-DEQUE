@@ -1,185 +1,85 @@
+from math import isfinite
+from typing import Iterable
+
 from pila import Pila
 import tokens
 
 
 def es_numero(token: str) -> bool:
-    """
-    Verifica si un token representa un número válido.
-    """
-
+    """Acepta valores reales finitos; rechaza nan e infinitos."""
     try:
-        float(token)
-        return True
-
+        return isfinite(float(token))
     except ValueError:
         return False
 
 
-def convertir_numero(token: str) -> int | float:
-    """
-    Convierte un token a entero o decimal.
-    """
-
+def convertir_numero(token: str) -> float:
     numero = float(token)
-
-    return int(numero) if numero.is_integer() else numero
-
-
-def operar(
-    a: int | float,
-    b: int | float,
-    operador: str
-) -> int | float:
-    """
-    Realiza la operación indicada entre dos operandos.
-
-    El orden siempre es:
-    a operador b
-    """
-
-    match operador:
-
-        case "+":
-            return a + b
-
-        case "-":
-            return a - b
-
-        case "*":
-            return a * b
-
-        case "/":
-            if b == 0:
-                raise ZeroDivisionError(
-                    "No se puede dividir entre cero"
-                )
-
-            return a / b
-
-        case "^":
-            return a ** b
-
-        case _:
-            raise ValueError(
-                f"Operador inválido: {operador}"
-            )
+    if not isfinite(numero):
+        raise ValueError('El operando debe ser un número real finito')
+    return numero
 
 
-def evaluar_postfija(expresion: str) -> int | float:
-    """
-    Evalúa una expresión en notación postfija.
+def operar(a: float, b: float, operador: str) -> float:
+    """Calcula a operador b y controla resultados fuera del dominio real."""
+    try:
+        match operador:
+            case '+':
+                resultado = a + b
+            case '-':
+                resultado = a - b
+            case '*':
+                resultado = a * b
+            case '/':
+                if b == 0:
+                    raise ZeroDivisionError('No se puede dividir entre cero')
+                resultado = a / b
+            case '^':
+                if a == 0 and b < 0:
+                    raise ZeroDivisionError('Cero no puede elevarse a una potencia negativa')
+                resultado = a ** b
+            case _:
+                raise ValueError(f'Operador inválido: {operador}')
+    except OverflowError as error:
+        raise ValueError('El resultado excede el rango numérico admitido') from error
 
-    Ejemplo:
-    8 2 / 3 -
+    if isinstance(resultado, complex) or not isfinite(resultado):
+        raise ValueError('El resultado debe ser un número real finito')
+    return float(resultado)
 
-    Resultado:
-    1
-    """
 
-    pila = Pila[int | float]()
-    lista_tokens = expresion.split()
-
-    if not lista_tokens:
-        raise ValueError(
-            "La expresión está vacía"
-        )
-
-    for token in lista_tokens:
-
+def _evaluar(secuencia: Iterable[str], prefija: bool) -> float:
+    pila = Pila[float]()
+    leyo_token = False
+    for token in secuencia:
+        leyo_token = True
         if es_numero(token):
-
-            pila.apilar(
-                convertir_numero(token)
-            )
-
+            pila.apilar(convertir_numero(token))
         elif tokens.es_operador(token):
-
             if pila.tamanio() < 2:
-                raise ValueError(
-                    "Operandos insuficientes"
-                )
-
-            b = pila.desapilar()
-            a = pila.desapilar()
-
-            resultado = operar(
-                a,
-                b,
-                token
-            )
-
-            pila.apilar(resultado)
-
+                raise ValueError('Operandos insuficientes')
+            primero = pila.desapilar()
+            segundo = pila.desapilar()
+            a, b = (primero, segundo) if prefija else (segundo, primero)
+            pila.apilar(operar(a, b, token))
         else:
+            raise ValueError(f'Token inválido: {token}')
 
-            raise ValueError(
-                f"Token inválido: {token}"
-            )
-
+    if not leyo_token:
+        raise ValueError('La expresión está vacía')
     if pila.tamanio() != 1:
-
-        raise ValueError(
-            "La expresión tiene operandos sobrantes"
-        )
-
+        raise ValueError('La expresión tiene operandos sobrantes')
     return pila.desapilar()
 
 
-def evaluar_prefija(expresion: str) -> int | float:
-    """
-    Evalúa una expresión en notación prefija.
+def evaluar_postfija(expresion: str) -> float:
+    """Lee de izquierda a derecha; extrae derecho antes que izquierdo."""
+    return _evaluar(tokens.iterar_tokens_separados(expresion), prefija=False)
 
-    Ejemplo:
-    - / 8 2 3
 
-    Resultado:
-    1
-    """
-
-    pila = Pila[int | float]()
-    lista_tokens = expresion.split()
-
-    if not lista_tokens:
-        raise ValueError(
-            "La expresión está vacía"
-        )
-
-    for token in reversed(lista_tokens):
-
-        if es_numero(token):
-
-            pila.apilar(
-                convertir_numero(token)
-            )
-
-        elif tokens.es_operador(token):
-
-            if pila.tamanio() < 2:
-                raise ValueError(
-                    "Operandos insuficientes"
-                )
-
-            a = pila.desapilar()
-            b = pila.desapilar()
-
-            resultado = operar(
-                a,
-                b,
-                token
-            )
-
-            pila.apilar(resultado)
-
-        else:
-
-            raise ValueError(
-                f"Token inválido: {token}"
-            )
-
-    if pila.tamanio() != 1:
-
-        raise ValueError(
-            "La expresión tiene operandos sobrantes"
-        )
-
-    return pila.desapilar()
+def evaluar_prefija(expresion: str) -> float:
+    """Lee de derecha a izquierda usando la pila propia para invertir tokens."""
+    entrada = Pila[str]()
+    for token in tokens.iterar_tokens_separados(expresion):
+        entrada.apilar(token)
+    return _evaluar(entrada, prefija=True)
