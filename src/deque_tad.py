@@ -98,13 +98,13 @@ class Deque(Generic[T]):
   
   def mostrar(self) -> None:
     if self.esta_vacio():
-      print("Deque vacio")
-      return
- 
+        print("Deque vacio")
+        return
+
     actual = self.__frente
-    elementos = []
+    contador = 1
+
     while actual is not None:
-      elementos.append(str(actual.dato))
-      actual = actual.siguiente
- 
-    print(elementos)
+        print(f"{contador}. {actual.dato}")
+        contador += 1
+        actual = actual.siguiente

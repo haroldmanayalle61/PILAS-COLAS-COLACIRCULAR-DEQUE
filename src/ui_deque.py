@@ -1,8 +1,5 @@
 from deque_tad import Deque
  
-deque_planificador: Deque[str] = Deque()
- 
- 
 def leer_entero(mensaje: str) -> int:
     cadena: str = input(mensaje).strip()
     try:
@@ -11,65 +8,77 @@ def leer_entero(mensaje: str) -> int:
         raise ValueError("Ingrese un número entero") from None
  
  
-def mostrar_estado() -> None:
-    deque_planificador.mostrar()
-    print(f"Tamaño: {deque_planificador.tamanio()}")
+def mostrar_estado(deque_actual: Deque[str]) -> None:
+    deque_actual.mostrar()
+    print(f"Tamaño: {deque_actual.tamanio()}")
  
-    if deque_planificador.esta_vacio():
+    if deque_actual.esta_vacio():
         print("Frente: ninguno")
         print("Final: ninguno")
     else:
-        print(f"Frente: {deque_planificador.consultar_frente()}")
-        print(f"Final: {deque_planificador.consultar_final()}")
+        print(f"Frente: {deque_actual.consultar_frente()}")
+        print(f"Final: {deque_actual.consultar_final()}")
  
  
 def demo_como_pila() -> None:
     print("--- Demostracion: Deque usado como Pila (LIFO) ---")
     print("Se usan insertar_final y eliminar_final, igual que apilar/desapilar.")
+
+    deque_demo = Deque()
+
     for tarea in ["Tarea A", "Tarea B", "Tarea C"]:
-        deque_planificador.insertar_final(tarea)
+        deque_demo.insertar_final(tarea)
         print(f"Insertada al final: {tarea}")
-        mostrar_estado()
+        mostrar_estado(deque_demo)
  
-    while not deque_planificador.esta_vacio():
-        valor = deque_planificador.eliminar_final()
+    while not deque_demo.esta_vacio():
+        valor = deque_demo.eliminar_final()
         print(f"Eliminada del final (LIFO): {valor}")
-        mostrar_estado()
+        mostrar_estado(deque_demo)
  
  
 def demo_como_cola() -> None:
     print("--- Demostracion: Deque usado como Cola (FIFO) ---")
     print("Se usan insertar_final y eliminar_frente, igual que encolar/desencolar.")
-    for tarea in ["Tarea X", "Tarea Y", "Tarea Z"]:
-        deque_planificador.insertar_final(tarea)
+
+    deque_demo = Deque()
+
+    for tarea in ["Tarea A", "Tarea B", "Tarea C"]:
+        deque_demo.insertar_final(tarea)
         print(f"Insertada al final: {tarea}")
-        mostrar_estado()
+        mostrar_estado(deque_demo)
  
-    while not deque_planificador.esta_vacio():
-        valor = deque_planificador.eliminar_frente()
+    while not deque_demo.esta_vacio():
+        valor = deque_demo.eliminar_frente()
         print(f"Eliminada del frente (FIFO): {valor}")
-        mostrar_estado()
+        mostrar_estado(deque_demo)
  
  
 def demo_combinado() -> None:
     print("--- Demostracion: Uso combinado del Deque ---")
-    deque_planificador.insertar_final("Tarea normal 1")
-    mostrar_estado()
-    deque_planificador.insertar_frente("Tarea urgente 1")
-    mostrar_estado()
-    deque_planificador.insertar_final("Tarea normal 2")
-    mostrar_estado()
+
+    deque_demo = Deque()
+
+    deque_demo.insertar_final("Tarea normal 1")
+    mostrar_estado(deque_demo)
+    deque_demo.insertar_frente("Tarea urgente 1")
+    mostrar_estado(deque_demo)
+    deque_demo.insertar_final("Tarea normal 2")
+    mostrar_estado(deque_demo)
  
-    valor = deque_planificador.eliminar_frente()
+    valor = deque_demo.eliminar_frente()
     print(f"Se atiende primero la mas urgente: {valor}")
-    mostrar_estado()
+    mostrar_estado(deque_demo)
  
-    valor = deque_planificador.eliminar_final()
+    valor = deque_demo.eliminar_final()
     print(f"Se cancela la ultima tarea agregada: {valor}")
-    mostrar_estado()
+    mostrar_estado(deque_demo)
  
  
 def submenu_deque() -> None:
+
+    deque_planificador: Deque[str] = Deque()
+
     while True:
         try:
             print(f'{"="*10}SUBMENU - PLANIFICADOR FLEXIBLE (DEQUE){"="*10}')
@@ -94,21 +103,21 @@ def submenu_deque() -> None:
                     if tarea == "":
                         raise ValueError('La tarea no puede estar vacia')
                     deque_planificador.insertar_frente(tarea)
-                    mostrar_estado()
+                    mostrar_estado(deque_planificador)
                 case 2:
                     tarea = input('Ingrese la tarea normal: ').strip()
                     if tarea == "":
                         raise ValueError('La tarea no puede estar vacia')
                     deque_planificador.insertar_final(tarea)
-                    mostrar_estado()
+                    mostrar_estado(deque_planificador)
                 case 3:
                     valor = deque_planificador.eliminar_frente()
                     print(f'Tarea atendida: {valor}')
-                    mostrar_estado()
+                    mostrar_estado(deque_planificador)
                 case 4:
                     valor = deque_planificador.eliminar_final()
                     print(f'Tarea cancelada: {valor}')
-                    mostrar_estado()
+                    mostrar_estado(deque_planificador)
                 case 5:
                     print(f'Tarea mas urgente: {deque_planificador.consultar_frente()}')
                 case 6:
@@ -122,7 +131,7 @@ def submenu_deque() -> None:
                         print('Deque vacio')
                     else:
                         print('Deque no vacio')
-                        mostrar_estado()
+                        mostrar_estado(deque_planificador)
                 case 10:
                     demo_como_pila()
                 case 11:
