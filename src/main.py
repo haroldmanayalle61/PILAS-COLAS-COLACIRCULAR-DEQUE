@@ -12,7 +12,7 @@ def mostrar_menu_principal() -> None:
     print("1. Demostrar Pila")
     print("2. Procesar expresiones")
     print("3. Demostrar Cola")
-    print("4. Demostrar Cola Circular [PENDIENTE]")
+    print("4. Demostrar Cola Circular")
     print("5. Demostrar Deque")
     print("6. Ejecutar pruebas [PENDIENTE]")
     print("7. Salir")
