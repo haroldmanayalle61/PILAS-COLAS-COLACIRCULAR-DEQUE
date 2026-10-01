@@ -1,4 +1,8 @@
+import sys
 import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from conversiones import infija_a_postfija, infija_a_prefija
 
 class TestConversiones(unittest.TestCase):
@@ -59,4 +63,4 @@ class TestConversiones(unittest.TestCase):
         print("="*50 + "\n")
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)

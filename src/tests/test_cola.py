@@ -1,9 +1,11 @@
+import sys
 import unittest
+from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from cola import Cola
 from modelos import Solicitud
 from ui_cola import codigo_duplicado, cola_solicitudes
-
 
 class TestCola(unittest.TestCase):
 
@@ -204,4 +206,4 @@ class TestCola(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(verbosity=2)
