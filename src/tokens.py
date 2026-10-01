@@ -38,10 +38,7 @@ def obtener_jerarquia(operador: str) -> int:
 
 def es_asociativo_derecha(operador: str) -> bool:
     #Devuelve True solo si el operador asocia por la derecha (^).
-    if operador == '^':
-        return True
-    else:
-        return False
+    return operador == '^'
 
 
 def es_operando_valido(token: str) -> bool:
