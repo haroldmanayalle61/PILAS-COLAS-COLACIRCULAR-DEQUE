@@ -1,11 +1,17 @@
 import unittest
+from pathlib import Path
 
 def ejecutar_pruebas() -> None:
     print("\n" + "=" * 45)
     print("      EJECUCIÓN GLOBAL DE PRUEBAS")
     print("=" * 45)
     cargador = unittest.TestLoader()
-    suite = cargador.discover(start_dir='tests', pattern='test_*.py')
+    carpeta_src = Path(__file__).resolve().parent
+    suite = cargador.discover(
+        start_dir=str(carpeta_src / 'tests'),
+        pattern='test_*.py',
+        top_level_dir=str(carpeta_src),
+    )
     # 2. Ejecuta la suite completa (verbosity=2 muestra el detalle de cada prueba en consola)
     corredor = unittest.TextTestRunner(verbosity=2)
     resultado = corredor.run(suite)

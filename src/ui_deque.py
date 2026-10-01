@@ -26,7 +26,7 @@ def demo_como_pila() -> None:
 
     deque_demo = Deque()
 
-    for tarea in ["Tarea A", "Tarea B", "Tarea C"]:
+    for tarea in ("Tarea A", "Tarea B", "Tarea C"):
         deque_demo.insertar_final(tarea)
         print(f"Insertada al final: {tarea}")
         mostrar_estado(deque_demo)
@@ -43,7 +43,7 @@ def demo_como_cola() -> None:
 
     deque_demo = Deque()
 
-    for tarea in ["Tarea A", "Tarea B", "Tarea C"]:
+    for tarea in ("Tarea A", "Tarea B", "Tarea C"):
         deque_demo.insertar_final(tarea)
         print(f"Insertada al final: {tarea}")
         mostrar_estado(deque_demo)
@@ -144,7 +144,7 @@ def submenu_deque() -> None:
                 case _:
                     print('Opcion fuera de rango')
  
-        except Exception as e:
+        except (ValueError, IndexError, OverflowError) as e:
             print(f"Error ({type(e).__name__}): {e}")
  
  

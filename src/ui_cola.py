@@ -52,6 +52,8 @@ def registrar_solicitud() -> None:
 
     print("\nSolicitud registrada correctamente.")
     print(solicitud)
+    mostrar_solicitudes()
+    mostrar_cantidad()
 
 
 def consultar_proxima() -> None:
@@ -79,6 +81,8 @@ def atender_solicitud() -> None:
 
         print("Solicitud atendida correctamente:")
         print(solicitud)
+        mostrar_solicitudes()
+        mostrar_cantidad()
 
     except IndexError as error:
 

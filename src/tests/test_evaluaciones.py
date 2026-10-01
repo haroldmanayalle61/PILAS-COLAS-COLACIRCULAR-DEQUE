@@ -4,7 +4,6 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from evaluaciones import evaluar_postfija, evaluar_prefija
-from evaluaciones import evaluar_postfija, evaluar_prefija
 from conversiones import infija_a_postfija, infija_a_prefija
 
 class TestEvaluaciones(unittest.TestCase):

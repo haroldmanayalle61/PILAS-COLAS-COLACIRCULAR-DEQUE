@@ -21,10 +21,11 @@ def leer_cadena(mensaje: str) -> str:
 
 def mostrar_estado(cola_capturas: ColaCircular[T]) -> None:
     cola_capturas.mostrar()
+    print(f"Tamanio: {cola_capturas.tamanio()}")
     if cola_capturas.esta_vacia():
         print("Frente: ninguno")
     else:
-        print(f"Frente: {cola_capturas.frente()}")
+        print(f"Frente: {cola_capturas.consultar_frente()}")
     if cola_capturas.esta_llena():
         print("Cola circular llena")
     else:
@@ -56,7 +57,7 @@ def submenu_circular(cola_capturas: ColaCircular[T], leer_dato: Callable[[str], 
                     print(f"Captura retirada: {valor}")
                     mostrar_estado(cola_capturas)
                 case 3:
-                    print(f"Frente: {cola_capturas.frente()}")
+                    print(f"Frente: {cola_capturas.consultar_frente()}")
                 case 4:
                     mostrar_estado(cola_capturas)
                 case 5:
@@ -79,33 +80,37 @@ def submenu_circular(cola_capturas: ColaCircular[T], leer_dato: Callable[[str], 
                 case _:
                     print("Opcion fuera de rango")
 
-        except Exception as error:
+        except (ValueError, IndexError, OverflowError) as error:
             print(f"Error ({type(error).__name__}): {error}")
 
 def ejecutar() -> None:
     global cola_enteros, cola_cadenas
      #Si fuera dentro cada vez que llame a la funcion, se crearia una nueva cola 
 
-    while cola_enteros is None and cola_cadenas is None:
+    while True:
         try:
             print("TIPO DE DATOS")
             print("1. Enteros")
             print("2. Cadenas")
+            print("0. Volver al menu principal")
             tipo: int = leer_entero("Ingrese el tipo de datos: ")
+            if tipo == 0:
+                return
             if tipo not in (1, 2):
                 raise ValueError("Seleccione 1 para enteros o 2 para cadenas")
-            capacidad: int = leer_entero("Ingrese la capacidad de la cola circular: ")
             if tipo == 1:
-                cola_enteros = ColaCircular[int](capacidad)
+                if cola_enteros is None:
+                    capacidad = leer_entero("Ingrese la capacidad de la cola circular: ")
+                    cola_enteros = ColaCircular[int](capacidad)
+                submenu_circular(cola_enteros, leer_entero)
             else:
-                cola_cadenas = ColaCircular[str](capacidad)
+                if cola_cadenas is None:
+                    capacidad = leer_entero("Ingrese la capacidad de la cola circular: ")
+                    cola_cadenas = ColaCircular[str](capacidad)
+                submenu_circular(cola_cadenas, leer_cadena)
+            return
         except ValueError as error:
             print(f"Error ({type(error).__name__}): {error}")
-
-    if cola_enteros is not None:
-        submenu_circular(cola_enteros, leer_entero)
-    elif cola_cadenas is not None:
-        submenu_circular(cola_cadenas, leer_cadena)
 
 if __name__ == "__main__":
     ejecutar()
