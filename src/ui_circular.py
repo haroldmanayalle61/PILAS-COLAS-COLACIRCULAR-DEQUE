@@ -25,7 +25,7 @@ def mostrar_estado(cola_capturas: ColaCircular[T]) -> None:
     if cola_capturas.esta_vacia():
         print("Frente: ninguno")
     else:
-        print(f"Frente: {cola_capturas.consultar_frente()}")
+        print(f"Frente: {cola_capturas.frente()}")
     if cola_capturas.esta_llena():
         print("Cola circular llena")
     else:
@@ -57,7 +57,7 @@ def submenu_circular(cola_capturas: ColaCircular[T], leer_dato: Callable[[str], 
                     print(f"Captura retirada: {valor}")
                     mostrar_estado(cola_capturas)
                 case 3:
-                    print(f"Frente: {cola_capturas.consultar_frente()}")
+                    print(f"Frente: {cola_capturas.frente()}")
                 case 4:
                     mostrar_estado(cola_capturas)
                 case 5:
