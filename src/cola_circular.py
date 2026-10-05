@@ -32,14 +32,10 @@ class ColaCircular(Generic[T]):
         self.__cantidad -= 1
         return valor
 
-    def consultar_frente(self) -> T:
+    def frente(self) -> T:
         if self.esta_vacia():
             raise IndexError("Cola circular vacia: No se puede consultar el frente")
         return cast(T, self.__datos[self.__frente]) #cast: dato esperado es del tipo T al verificador
-
-    def frente(self) -> T:
-        """Alias que conserva la compatibilidad con las llamadas anteriores."""
-        return self.consultar_frente()
 
     def esta_vacia(self) -> bool:
         return self.tamanio() == 0
